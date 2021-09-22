@@ -62,7 +62,6 @@ import scala.collection.Seq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -234,7 +233,7 @@ public class RDDCollection<T> extends BaseRDDCollection<T> {
         // as intermediate joins will already be partitioned on the key
         if (joined == left) {
           joined = partitionOnKey(joined, leftKeys, joinRequest.isNullSafe(),
-            leftSparkSchema, joinPartitions);
+                                  leftSparkSchema, joinPartitions);
         }
       }
       joined = joined.join(right, joinOn, joinType);

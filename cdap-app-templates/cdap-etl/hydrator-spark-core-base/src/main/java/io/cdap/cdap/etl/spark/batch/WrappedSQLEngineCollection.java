@@ -44,12 +44,12 @@ import javax.annotation.Nullable;
  * @param <U> Type of the output collection records.
  */
 public class WrappedSQLEngineCollection<T, U> implements SQLBackedCollection<U> {
-  private final java.util.function.Function<SparkCollection<T>, SparkCollection<U>> mapper;
+  private final java.util.function.Function<SQLBackedCollection<T>, SparkCollection<U>> mapper;
   private final SQLBackedCollection<T> wrapped;
   private SparkCollection<U> unwrapped = null;
 
   public WrappedSQLEngineCollection(SQLBackedCollection<T> wrapped,
-                                    java.util.function.Function<SparkCollection<T>, SparkCollection<U>> mapper) {
+                                    java.util.function.Function<SQLBackedCollection<T>, SparkCollection<U>> mapper) {
     this.wrapped = wrapped;
     this.mapper = mapper;
   }
@@ -75,7 +75,7 @@ public class WrappedSQLEngineCollection<T, U> implements SQLBackedCollection<U> 
    * @return SQL Backed collection after re-mapping the underlying colleciton and re-adding the mapper.
    */
   private SparkCollection<U> rewrap(
-    java.util.function.Function<SparkCollection<T>, SparkCollection<T>> remapper) {
+    java.util.function.Function<SQLBackedCollection<T>, SparkCollection<T>> remapper) {
     return new WrappedSQLEngineCollection<>((SQLBackedCollection<T>) remapper.apply(wrapped), mapper);
   }
 
@@ -180,4 +180,5 @@ public class WrappedSQLEngineCollection<T, U> implements SQLBackedCollection<U> 
   public SparkCollection<U> join(JoinExpressionRequest joinExpressionRequest) {
     return rewrap(c -> c.join(joinExpressionRequest));
   }
+
 }
