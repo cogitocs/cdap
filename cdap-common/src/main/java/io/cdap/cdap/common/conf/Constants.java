@@ -1777,4 +1777,19 @@ public final class Constants {
       public static final String WORKER_SECRET_DISK_PATH = "twill.security.worker.secret.disk.path";
     }
   }
+
+  public static final class Tether {
+    /**
+     * Interval for connecting to the server.
+     */
+    public static final String CONNECT_INTERVAL = "tether.connect.interval";
+    public static final int CONNECT_INTERVAL_DEFAULT = 5;
+
+    /**
+     * Tethering connection timeout.
+     */
+    public static final String CONNECTION_TIMEOUT = "tether.connection.timeout";
+    public static final int CONNECTION_TIMEOUT_DEFAULT = 60;
+
+  }
 }
