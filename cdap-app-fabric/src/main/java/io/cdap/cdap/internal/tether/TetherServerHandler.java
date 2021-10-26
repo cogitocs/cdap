@@ -97,30 +97,30 @@ public class TetherServerHandler extends AbstractHttpHandler {
   @PUT
   @Path("/tethering/controlchannels/{peer}")
   public void connectControlChannel(HttpRequest request, HttpResponder responder,
-                                   @PathParam("peer") String peer) throws IOException {
+                                    @PathParam("peer") String peer) throws IOException {
     controlChannels.put(peer, System.currentTimeMillis());
     List<TetherControlMessage> commands = new ArrayList<>();
 
     MessageFetcher fetcher = messagingContext.getMessageFetcher();
     TopicId topic = new TopicId(NamespaceId.SYSTEM.getNamespace(), TETHERING_TOPIC_PREFIX + peer);
     String lastMessageId = null;
-    synchronized (this) {
-      try (CloseableIterator<Message> iterator =
-             fetcher.fetch(topic.getNamespace(), topic.getTopic(), 1, lastMessageIds.get(topic.getTopic()))) {
-        while (iterator.hasNext()) {
-          Message message = iterator.next();
-          TetherControlMessage controlMessage = GSON.fromJson(message.getPayloadAsString(StandardCharsets.UTF_8),
-                                                              TetherControlMessage.class);
-          commands.add(controlMessage);
-          lastMessageId = message.getId();
-        }
-      } catch (TopicNotFoundException e) {
-        LOG.warn("Received control connection from peer {} that's not tethered", peer);
+    try (CloseableIterator<Message> iterator =
+           fetcher.fetch(topic.getNamespace(), topic.getTopic(), 1, lastMessageIds.get(topic.getTopic()))) {
+      while (iterator.hasNext()) {
+        Message message = iterator.next();
+        TetherControlMessage controlMessage = GSON.fromJson(message.getPayloadAsString(StandardCharsets.UTF_8),
+                                                            TetherControlMessage.class);
+        commands.add(controlMessage);
+        lastMessageId = message.getId();
       }
+    } catch (TopicNotFoundException e) {
+      LOG.warn("Received control connection from peer {} that's not tethered", peer);
+    }
 
-      if (lastMessageId != null) {
-        // Update the last message id for the topic if we read any messages
-        lastMessageIds.put(topic.getTopic(), lastMessageId);
+    if (lastMessageId != null) {
+      // Update the last message id for the topic if we read any messages
+      lastMessageIds.put(topic.getTopic(), lastMessageId);
+      synchronized (this) {
         store.setMessageId(topic.getTopic(), lastMessageId);
       }
     }
